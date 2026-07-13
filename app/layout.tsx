@@ -26,14 +26,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Clinique Khadija",
     description: "Une équipe complète de spécialistes à votre service à la ZAC Mbao.",
-    url: "https://clinique-maimouna.vercel.app",
+    url: "https://clinique-khadija-theta.vercel.app",
     siteName: "Clinique Khadija",
     images: [
       {
-        url: "/images/clinic-hero.png",
+        url: "/images/logo-clinique-khadija.png",
         width: 1200,
         height: 630,
-        alt: "Clinique Khadija Accueil",
+        alt: "Logo Clinique Khadija",
       },
     ],
     locale: "fr_FR",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Clinique Khadija",
     description: "Votre santé, notre priorité au quotidien.",
-    images: ["/images/clinic-hero.png"],
+    images: ["/images/logo-clinique-khadija.png"],
   },
 }
 
