@@ -3,6 +3,8 @@ import { Calendar, LayoutDashboard, FileText, Settings, Stethoscope, Users } fro
 import { logoutAdmin } from "@/app/actions/auth"
 import { AdminSidebar } from "@/components/admin-sidebar"
 
+export const dynamic = "force-dynamic"
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-gray-50/50">
