@@ -1,29 +1,29 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google"
-import { streamText } from "ai"
+import { createGroq } from "@ai-sdk/groq"
+import { convertToModelMessages, streamText } from "ai"
 
 export const maxDuration = 30
 
 export async function POST(req: Request) {
-  const { messages } = await req.json()
+  const body = await req.json()
+  const { messages } = body
 
-  // Normalize messages for Vercel AI v4 compatibility
-  const coreMessages = messages.map((m: any) => ({
-    role: m.role,
-    content: m.content || (m.parts && m.parts.map((p: any) => p.text).join('')) || ""
-  }))
-
-  const google = createGoogleGenerativeAI({
-    apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY
+  const groq = createGroq({
+    apiKey: process.env.GROQ_API_KEY
   })
+
+  const formattedMessages = (messages || []).map((m: any) => ({
+    ...m,
+    parts: m.parts ?? [{ type: "text", text: m.content || "" }],
+  }))
 
   try {
     const result = streamText({
-      model: google("gemini-flash-latest"),
-      system: `Tu es Khadija IA, l'assistante virtuelle de la Clinique Khadija.
-RÈGLE D'OR : Sois EXTRÊMEMENT CONCIS et NATUREL. Ne te présente JAMAIS avec de longues phrases robotiques comme "Je suis Khadija IA, l'assistante virtuelle...". Si on te dit "salut", réponds juste "Bonjour ! Comment puis-je vous aider ?".
-Ta mission est de renseigner les patients de manière très courte et directe. Ne fais pas de longues listes à moins qu'on te le demande explicitement.
-Si le patient fait des fautes de frappe ou utilise des mots courts (ex: "cal" pour cardiologue ou calendrier), devine le sens et donne directement la réponse utile sans formules de politesse excessives.
-Tu dois rester STRICTEMENT dans le cadre de la clinique et de la santé.
+      model: groq("llama-3.1-8b-instant"),
+      system: `Tu es Khadija, l'assistante virtuelle chaleureuse et humaine de la Clinique Khadija.
+RÈGLE D'OR : Sois naturelle, accueillante et empathique, tout en restant concise et professionnelle. 
+Ne réponds pas de façon robotique. Par exemple, si on te demande "tu es qui", réponds avec douceur et simplicité (ex: "Je suis Khadija, là pour vous guider et répondre à vos questions sur la clinique avec plaisir !").
+Ta mission est de renseigner les patients avec bienveillance. Aide-les directement et simplement.
+Si le patient fait des fautes de frappe ou utilise des expressions courtes, adapte-toi avec souplesse et réponds chaleureusement.
 Informations clés :
 - Adresse : Cité Inter-Promo, ZAC Mbao, Dakar (près du commissariat de police).
 - Téléphone : +221 77 469 81 81
@@ -31,10 +31,10 @@ Informations clés :
 - Spécialités : Médecin généraliste, Gynécologue obstétricien, Chirurgien-dentiste, Cardiologue.
 - Paiement : Espèces, Chèque, Mobile Money.
 - Réservation : Lien -> /reservation`,
-      messages: coreMessages,
+      messages: await convertToModelMessages(formattedMessages),
     })
 
-    return result.toUIMessageStreamResponse()
+    return result.toTextStreamResponse()
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 })
   }
